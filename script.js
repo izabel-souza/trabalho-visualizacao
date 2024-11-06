@@ -246,31 +246,58 @@ class MapaDeCalor {
 
         // Título do eixo X (Vendas na América do Norte)
         this.svg.append("text")
-            .attr("x", this.configuracao.width / 2 + this.configuracao.left)
-            .attr("y", this.configuracao.height + this.configuracao.top + 60)
+            .attr("x", (this.configuracao.width / 2) + this.configuracao.left)
+            .attr("y", (this.configuracao.height + this.configuracao.top + 40))
             .style("text-anchor", "middle")
             .text("Vendas na América do Norte (milhões)");
 
         // Título do eixo Y (Vendas na Europa)
         this.svg.append("text")
             .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
-            .attr("y", this.configuracao.left / 3)
+            .attr("y", (this.configuracao.left / 3))
             .attr("transform", "rotate(-90)")
             .style("text-anchor", "middle")
             .text("Vendas na Europa (milhões)");
     }
 
-    carregaMapaDeCalor() {
-        let raioMax = 4;  // Define o tamanho máximo dos círculos
+    criaGrade() {
+        const larguraBin = 10; // Largura fixa para cada bin
+        const alturaBin = 10;  // Altura fixa para cada bin
 
-        this.margens.selectAll(".circulo")
-            .data(this.dados)
-            .join("circle")
-            .attr("class", "circulo")
-            .attr("cx", d => this.escalaX(d.x))
-            .attr("cy", d => this.escalaY(d.y))
-            .attr("r", raioMax)
-            .attr("fill", d => this.escalaCores(d.valor))
+        const grid = {};
+
+        // Agrupando os dados manualmente
+        this.dados.forEach(d => {
+            const xKey = Math.floor(this.escalaX(d.x) / larguraBin); // Chave para o eixo X
+            const yKey = Math.floor(this.escalaY(d.y) / alturaBin); // Chave para o eixo Y
+            
+            const key = `${xKey},${yKey}`; // Chave única para a célula
+            
+            if (!grid[key]) {
+                grid[key] = { x: xKey * larguraBin, y: yKey * alturaBin, valor: 0 }; // Inicializa a célula se não existir
+            }
+            
+            grid[key].valor += d.valor; // Acumula a intensidade
+        });
+
+        return Object.values(grid); // Retorna os valores da grade
+    }
+
+    carregaMapaDeCalor() {
+        const dadosAgrupados = this.criaGrade(); // Chame a função que cria a grade
+
+        const larguraBin = 10; // Largura dos retângulos
+        const alturaBin = 10;  // Altura dos retângulos
+
+        this.margens.selectAll(".retangulo")
+            .data(dadosAgrupados)
+            .join("rect")
+            .attr("class", "retangulo")
+            .attr("x", d => d.x) // Posição X do retângulo
+            .attr("y", d => this.configuracao.height - (d.y + alturaBin)) // Posição Y do retângulo (inverter Y)
+            .attr("width", larguraBin) // Largura do retângulo
+            .attr("height", alturaBin) // Altura do retângulo
+            .attr("fill", d => this.escalaCores(d.valor)) // Cor baseada na intensidade
             .attr("opacity", 0.8);  // Transparência ajustada
     }
 }

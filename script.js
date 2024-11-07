@@ -25,8 +25,8 @@ class GraficoBarras {
 
     async carregaArquivo(file) {
         this.barras = await d3.csv(file, d => ({
-            cat: d.nome,
-            valor: +d.vendas,
+            cat: d.Genre,
+            valor: +d.Global_Sales,
         }));
     }
 
@@ -72,7 +72,7 @@ class GraficoBarras {
 
 //---------------------------------------------------------
 
-class Scatterplot {
+class GraficoDispersao {
 
     constructor(configuracao) {
         this.configuracao = configuracao;
@@ -104,10 +104,13 @@ class Scatterplot {
  
     async carregaArquivo(file) {
         this.circulos = await d3.csv(file, d => ({
-            cx: +d.ano,            // Atributo 'ano' do CSV para o eixo X
-            cy: +d.vendas,         // Atributo 'vendas' do CSV para o eixo Y
-            r: 4                   // Raio fixo para os pontos no gráfico
+            cx: +d.User_Score,            
+            cy: +d.Critic_Score,         
+            r: 4,                   // Raio fixo para os pontos no gráfico
         }));
+
+        this.circulos = this.circulos.slice(0,1000);
+
     }
  
     criaEscalas() {
@@ -152,194 +155,125 @@ class Scatterplot {
     }
  }
 
-
 //---------------------------------------------------------
+class MapaDeCalor {
 
-// class Scatterplot {
-//     constructor(configuracao) {
-//         this.configuracao = configuracao;
-//         this.svg = null;
-//         this.margens = null;
-//         this.escalaX = null;
-//         this.escalaY = null;
-//         this.circulos = [];
-//         this.criaSvg();
-//         this.criaMargens();
-//     }
+    constructor(configuracao) {
+        this.configuracao = configuracao;
 
-//     criaSvg() {
-//         this.svg = d3.select(this.configuracao.div)
-//             .append("svg")
-//             .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right)
-//             .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom);
-//     }
+        this.svg = null;
+        this.margens = null;
 
-//     criaMargens() {
-//         this.margens = this.svg.append("g")
-//             .attr("transform", `translate(${this.configuracao.left},${this.configuracao.top})`);
-//     }
+        this.escalaX = null;
+        this.escalaY = null;
+        this.escalaCores = null;
 
-//     async carregaArquivo(file) {
-//         this.circulos = await d3.csv(file, d => ({
-//             cx: +d.CampoX,   // Substitua "CampoX" pelo nome correto
-//             cy: +d.CampoY,   // Substitua "CampoY" pelo nome correto
-//             col: +d.CampoCor, // Substitua "CampoCor" pelo nome correto
-//             cat: d.CampoCategoria, // Substitua "CampoCategoria" pelo nome correto
-//             r: 4
-//         }));
-//     }
+        this.dados = [];
 
-//     criaEscalas() {
-//         const xExtent = d3.extent(this.circulos, d => d.cx);
-//         const yExtent = d3.extent(this.circulos, d => d.cy);
-//         const colExtent = d3.extent(this.circulos, d => d.col);
+        this.criaSvg();
+        this.criaMargens();
+    }
 
-//         this.escalaX = d3.scaleLinear().domain(xExtent).nice().range([0, this.configuracao.width]);
-//         this.escalaY = d3.scaleLinear().domain(yExtent).nice().range([this.configuracao.height, 0]);
-//         this.escalaCores = d3.scaleSequential(d3.interpolatePuBl).domain(colExtent);
-//     }
+    criaSvg() {
+        this.svg = d3.select(this.configuracao.div)
+            .append("svg")
+            .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right)
+            .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom);
+    }
 
-//     criaEixos() {
-//         const eixoX = d3.axisBottom(this.escalaX);
-//         const eixoY = d3.axisLeft(this.escalaY);
+    criaMargens() {
+        this.margens = this.svg
+            .append("g")
+            .attr("transform", `translate(${this.configuracao.left}, ${this.configuracao.top})`);
+    }
 
-//         this.margens.append("g")
-//             .attr("transform", `translate(0, ${this.configuracao.height})`)
-//             .call(eixoX);
-//         this.margens.append("g").call(eixoY);
-//     }
+    async carregaArquivo(file) {
+        this.dados = await d3.csv(file, d => {
+            return {
+                x: +d.NA_Sales, // Eixo X baseado nas vendas na América do Norte
+                y: +d.EU_Sales, // Eixo Y baseado nas vendas na Europa
+                valor: +d.JP_Sales // Intensidade da cor com base nas vendas no Japão
+            };
+        });
+    }
 
-//     carregaCirculos() {
-//         this.margens.selectAll("circle")
-//             .data(this.circulos)
-//             .join("circle")
-//             .attr("cx", d => this.escalaX(d.cx))
-//             .attr("cy", d => this.escalaY(d.cy))
-//             .attr("r", d => d.r)
-//             .attr("fill", d => this.escalaCores(d.col));
-//     }
-// }
+    criaEscalas() {
+        let xExtent = d3.extent(this.dados, d => d.x);
+        let yExtent = d3.extent(this.dados, d => d.y);
+        let valorExtent = d3.extent(this.dados, d => d.valor);
 
-// class MapaDeCalor {
+        this.escalaX = d3.scaleLinear()
+            .domain(xExtent)
+            .nice()
+            .range([0, this.configuracao.width]);
 
-//     constructor(configuracao) {
-//         this.configuracao = configuracao;
+        this.escalaY = d3.scaleLinear()
+            .domain(yExtent)
+            .nice()
+            .range([this.configuracao.height, 0]);
 
-//         this.svg = null;
-//         this.margens = null;
+        this.escalaCores = d3.scaleSequential(d3.interpolateInferno)
+            .domain(valorExtent);
+    }
 
-//         this.escalaX = null;
-//         this.escalaY = null;
+    criaEixos() {
+        let eixoX = d3.axisBottom(this.escalaX).ticks(10);
+        let eixoY = d3.axisLeft(this.escalaY).ticks(10);
 
-//         this.campos = [];
+        this.margens
+            .append("g")
+            .attr("transform", `translate(0, ${this.configuracao.height})`)
+            .call(eixoX);
 
-//         this.criaSvg();
-//         this.criaMargens();
-//     }
+        this.margens
+            .append("g")
+            .call(eixoY);
+    }
 
-//     criaSvg() {
-//         this.svg = d3.select(this.configuracao.div)
-//             .append("svg")
-//             .attr("x", 10)
-//             .attr("y", 10)
-//             .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right)
-//             .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom)
-//     }
+    carregaMapaDeCalor() {
+        let raioMax = 10; // Define o tamanho máximo dos círculos
 
-//     criaMargens() {
-//         this.margens = this.svg
-//             .append("g")
-//             .attr("transform", `translate(${this.configuracao.left}, ${this.configuracao.top}`)
-//     }
+        this.margens.selectAll(".circulo")
+            .data(this.dados)
+            .join("circle")
+            .attr("class", "circulo")
+            .attr("cx", d => this.escalaX(d.x))
+            .attr("cy", d => this.escalaY(d.y))
+            .attr("r", raioMax) // Tamanho dos círculos
+            .attr("fill", d => this.escalaCores(d.valor))
+            .attr("opacity", 0.8); // Opcional: ajustar a transparência
+    }
+}
 
-//     async carregaArquivo(file) {
-//         this.campos = await d3.csv(file, d => {
-//             return {
-//                 x: +d,//Atributo//,
-//                 y: +d,//Atributo//,
-//                 valor: +d,//Atributo//
-//             };
-//         });
-//     }
-
-//     criaEscalas() {
-//         let xExtent = d3.extent(this.campos, d => d.x);
-//         let yExtent = d3.extent(this.campos, d => d.y);
-//         let valorExtent = d3.extent(this.dados, d => d.valor);
-
-//         this.escalaX = d3.scaleLinear()
-//             .domain(xExtent)
-//             .nice()
-//             .range([0, this.configuracao.width]);
-
-//         this.escalaY = d3.scaleLinear()
-//             .domain(yExtent)
-//             .nice()
-//             .range([this.configuracao.height, 0]);
-
-//         this.escalaCores = d3.scaleSequential(d3.interpolateInferno)
-//             .domain(valorExtent);
-//     }
-
-
-//     criaEixos() {
-//         let eixoX = d3.axisBottom(this.escalaX)
-//             .ticks(10);
-//         let eixoY = d3.axisLeft(this.escalaY)
-//             .ticks(10);
-
-//         this.margens
-//             .append("g")
-//             .attr("transform", `translate(0, ${this.configuracao.height})`)
-//             .call(eixoX);
-
-//         this.margens
-//             .append("g")
-//             .call(eixoY);
-//     }
-
-//     carregaMapaDeCalor() {
-//         this.margens.selectAll(".celula")
-//             .data(this.campos)
-//             .join("rect")
-//             .attr("class", "celula")
-//             .attr("x", d => this.escalaX(d.x))
-//             .attr("y", d => this.escalaY(d.y))
-//             .attr("width", (this.configuracao.width / (d3.max(this.campos, d => d.x) - d3.min(this.campos, d => d.x))))
-//             .attr("height", (this.configuracao.height / (d3.max(this.campos, d => d.y) - d3.min(this.campos, d => d.y))))
-//             .attr("fill", d => this.escalaCores(d.valor));
-//     }
-// }
 
 async function main() {
     
+//------------------------------------------------------
     let barras = { div: "#barras", width: 1000, height: 500, top: 30, left: 90, bottom: 200, right: 30 };
     let eixoBarras = new GraficoBarras(barras);
-    await eixoBarras.carregaArquivo('jogos.csv');
+    await eixoBarras.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
     
     eixoBarras.criaEscalas();
     eixoBarras.criaEixos();
     eixoBarras.carregaBarras();
 
 //------------------------------------------------------
-
     let dispersao = { div: "#dispersao", width: 1000, height: 500, top: 30, left: 90, bottom: 200, right: 30 };
-    let eixoDispersao = new Scatterplot(dispersao);
-    await eixoDispersao.carregaArquivo('jogos.csv');
+    let eixoDispersao = new GraficoDispersao(dispersao);
+    await eixoDispersao.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 
     eixoDispersao.criaEscalas();
     eixoDispersao.criaEixos();
     eixoDispersao.carregaCirculos();
 
 //------------------------------------------------------
+    let calor = { div: "#mapa-de-calor", width: 800, height: 600, top: 30, left: 50, bottom: 30, right: 30 };
+    let eixoCalor = new MapaDeCalor(calor);
+    await eixoCalor.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 
-    // let calor = { div: "#calor", width: 800, height: 600, top: 30, left: 50, bottom: 30, right: 30 };
-    // let eixoCalor = new MapaDeCalor(calor);
-    // await eixoCalor.carregaArquivo("../00 - datasets/superstore.csv");
-
-    // eixoCalor.criaEscalas();
-    // eixoCalor.criaEixos();
-    // eixoCalor.carregaMapaDeCalor();
+    eixoCalor.criaEscalas();
+    eixoCalor.criaEixos();
+    eixoCalor.carregaMapaDeCalor();
 }
 
 main(); 

@@ -1,5 +1,4 @@
 class GraficoBarras {
-
     constructor(configuracao) {
         this.configuracao = configuracao;
         this.svg = null;
@@ -46,15 +45,31 @@ class GraficoBarras {
         const eixoY = d3.axisLeft(this.escalaY);
 
         this.margens.append("g")
-        .attr("transform", `translate(0, ${this.configuracao.height})`)
-        .call(eixoX)
-        .selectAll("text")  // Seleciona todos os textos do eixo X
-        .style("text-anchor", "end")  // Define a âncora do texto
-        .attr("dx", "-0.8em")         // Desloca um pouco o texto horizontalmente
-        .attr("dy", "0.15em")         // Desloca um pouco o texto verticalmente
-        .attr("transform", "rotate(-45)");  // Rotaciona o texto para -45 graus
+            .attr("transform", `translate(0, ${this.configuracao.height})`)
+            .call(eixoX)
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-0.8em")
+            .attr("dy", "0.15em")
+            .attr("transform", "rotate(-45)");
 
         this.margens.append("g").call(eixoY);
+
+        // Título do eixo X (Gêneros)
+        this.svg.append("text")
+            .attr("x", this.configuracao.width / 2 + this.configuracao.left)
+            .attr("y", this.configuracao.height + this.configuracao.top + 160)
+            .style("text-anchor", "middle")
+            .text("Gênero");
+
+        // Título do eixo Y (Vendas Globais)
+        this.svg.append("text")
+            .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
+            .attr("y", this.configuracao.left / 3)
+            .attr("transform", "rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("Vendas Globais (milhões)");
+
     }
 
     carregaBarras() {
@@ -66,14 +81,11 @@ class GraficoBarras {
             .attr("y", d => this.escalaY(d.valor))
             .attr("width", this.escalaX.bandwidth())
             .attr("height", d => this.configuracao.height - this.escalaY(d.valor))
-            .attr("fill", "#4a90a0");
+            .attr("fill", "#6c5ce7");  // Cor roxa para as barras
     }
 }
-
 //---------------------------------------------------------
-
 class GraficoDispersao {
-
     constructor(configuracao) {
         this.configuracao = configuracao;
  
@@ -127,23 +139,31 @@ class GraficoDispersao {
             .nice()
             .range([this.configuracao.height, 0]);
     }
- 
+
     criaEixos() {
-        const eixoX = d3.axisBottom(this.escalaX)
-        .ticks(10)
-        .tickFormat(d3.format("d"));
+        const eixoX = d3.axisBottom(this.escalaX).ticks(10).tickFormat(d3.format("d"));
         const eixoY = d3.axisLeft(this.escalaY).ticks(10);
- 
-        this.margens
-            .append("g")
+
+        this.margens.append("g")
             .attr("transform", `translate(0, ${this.configuracao.height})`)
             .call(eixoX);
- 
-        this.margens
-            .append("g")
-            .call(eixoY);
+
+        this.margens.append("g").call(eixoY);
+
+        this.svg.append("text")
+            .attr("x", this.configuracao.width / 2 + this.configuracao.left)
+            .attr("y", this.configuracao.height + this.configuracao.top + 60)
+            .style("text-anchor", "middle")
+            .text("Pontuação dos Usuários");
+
+        this.svg.append("text")
+            .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
+            .attr("y", this.configuracao.left / 3)
+            .attr("transform", "rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("Pontuação da Crítica");
     }
- 
+
     carregaCirculos() {
         this.margens.selectAll("circle")
             .data(this.circulos)
@@ -151,13 +171,11 @@ class GraficoDispersao {
             .attr("cx", d => this.escalaX(d.cx))
             .attr("cy", d => this.escalaY(d.cy))
             .attr("r", d => d.r)
-            .attr("fill", "#4a90a0");
+            .attr("fill", "#0984e3");  // Cor azul para os círculos
     }
  }
-
 //---------------------------------------------------------
 class MapaDeCalor {
-
     constructor(configuracao) {
         this.configuracao = configuracao;
 
@@ -220,18 +238,30 @@ class MapaDeCalor {
         let eixoX = d3.axisBottom(this.escalaX).ticks(10);
         let eixoY = d3.axisLeft(this.escalaY).ticks(10);
 
-        this.margens
-            .append("g")
+        this.margens.append("g")
             .attr("transform", `translate(0, ${this.configuracao.height})`)
             .call(eixoX);
 
-        this.margens
-            .append("g")
-            .call(eixoY);
+        this.margens.append("g").call(eixoY);
+
+        // Título do eixo X (Vendas na América do Norte)
+        this.svg.append("text")
+            .attr("x", this.configuracao.width / 2 + this.configuracao.left)
+            .attr("y", this.configuracao.height + this.configuracao.top + 60)
+            .style("text-anchor", "middle")
+            .text("Vendas na América do Norte (milhões)");
+
+        // Título do eixo Y (Vendas na Europa)
+        this.svg.append("text")
+            .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
+            .attr("y", this.configuracao.left / 3)
+            .attr("transform", "rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("Vendas na Europa (milhões)");
     }
 
     carregaMapaDeCalor() {
-        let raioMax = 10; // Define o tamanho máximo dos círculos
+        let raioMax = 4;  // Define o tamanho máximo dos círculos
 
         this.margens.selectAll(".circulo")
             .data(this.dados)
@@ -239,17 +269,15 @@ class MapaDeCalor {
             .attr("class", "circulo")
             .attr("cx", d => this.escalaX(d.x))
             .attr("cy", d => this.escalaY(d.y))
-            .attr("r", raioMax) // Tamanho dos círculos
+            .attr("r", raioMax)
             .attr("fill", d => this.escalaCores(d.valor))
-            .attr("opacity", 0.8); // Opcional: ajustar a transparência
+            .attr("opacity", 0.8);  // Transparência ajustada
     }
 }
-
-
-async function main() {
-    
 //------------------------------------------------------
-    let barras = { div: "#barras", width: 1000, height: 500, top: 30, left: 90, bottom: 200, right: 30 };
+async function main() {
+
+    let barras = { div: "#barras", width: 1000, height: 500, top: 30, left: 150, bottom: 350, right: 30 };
     let eixoBarras = new GraficoBarras(barras);
     await eixoBarras.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
     
@@ -258,7 +286,7 @@ async function main() {
     eixoBarras.carregaBarras();
 
 //------------------------------------------------------
-    let dispersao = { div: "#dispersao", width: 1000, height: 500, top: 30, left: 90, bottom: 200, right: 30 };
+    let dispersao = { div: "#dispersao", width: 1000, height: 500, top: 30, left: 150, bottom: 350, right: 30 };
     let eixoDispersao = new GraficoDispersao(dispersao);
     await eixoDispersao.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 
@@ -267,7 +295,7 @@ async function main() {
     eixoDispersao.carregaCirculos();
 
 //------------------------------------------------------
-    let calor = { div: "#mapa-de-calor", width: 800, height: 600, top: 30, left: 50, bottom: 30, right: 30 };
+    let calor = { div: "#mapa-de-calor", width: 1000, height: 500, top: 30, left: 150, bottom: 150, right: 30 };
     let eixoCalor = new MapaDeCalor(calor);
     await eixoCalor.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 

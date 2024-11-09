@@ -2,15 +2,15 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.chart {
-    margin: 20px;
-    border: 1px solid #ccc;
+h1 {
+    text-align: center;
 }
 
-circulo {
-    stroke: 1px solid gray;;
-}
-
-.tick line {
-    stroke: gray;
+div{ 
+    width: 1000;
+    height: 500; 
+    top: 30; 
+    left: 150;
+    bottom: 350;
+    right: 30;
 }

@@ -24,8 +24,8 @@ class GraficoBarras {
 
     async carregaArquivo(file) {
         this.barras = await d3.csv(file, d => ({
-            cat: d.Genre,
-            valor: +d.Global_Sales,
+            cat: d.Genre || "Others", //nomear os gêneros de jogos do eixo x
+            valor: +d.Global_Sales, //vendas globais no eixo y
         }));
     }
 
@@ -43,7 +43,7 @@ class GraficoBarras {
     criaEixos() {
         const eixoX = d3.axisBottom(this.escalaX);
         const eixoY = d3.axisLeft(this.escalaY);
-
+    
         this.margens.append("g")
             .attr("transform", `translate(0, ${this.configuracao.height})`)
             .call(eixoX)
@@ -52,26 +52,43 @@ class GraficoBarras {
             .attr("dx", "-0.8em")
             .attr("dy", "0.15em")
             .attr("transform", "rotate(-45)");
-
-        this.margens.append("g").call(eixoY);
+    
+            
+        this.margens.selectAll(".linha-horizontal")
+            .data(this.escalaY.ticks())
+            .enter()
+            .append("line")
+            .attr("class", "linha-horizontal")
+            .attr("x1", 0)
+            .attr("x2", this.configuracao.width)
+            .attr("y1", d => this.escalaY(d))
+            .attr("y2", d => this.escalaY(d))
+            .attr("stroke", "#ccc")
+            .attr("stroke-dasharray", "2,2");
+        
+        this.margens.append("g")
+            .call(eixoY);
 
         // Título do eixo X (Gêneros)
         this.svg.append("text")
             .attr("x", this.configuracao.width / 2 + this.configuracao.left)
-            .attr("y", this.configuracao.height + this.configuracao.top + 160)
+            .attr("y", this.configuracao.height + this.configuracao.top + 105)
             .style("text-anchor", "middle")
             .text("Gênero");
-
-        // Título do eixo Y (Vendas Globais)
+    
+         // Título do eixo Y (Vendas Globais)
         this.svg.append("text")
             .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
-            .attr("y", this.configuracao.left / 3)
+            .attr("y", this.configuracao.left / 2)
             .attr("transform", "rotate(-90)")
             .style("text-anchor", "middle")
             .text("Vendas Globais (milhões)");
-
+    
+        // Define a espessura das linhas dos eixos
+        this.svg.selectAll(".domain, .tick line")  // Seleciona as linhas do eixo e as marcas
+            .style("stroke-width", "1.5px");  // Define a espessura da linha
     }
-
+    
     carregaBarras() {
         this.margens.selectAll(".barra")
             .data(this.barras)
@@ -81,22 +98,18 @@ class GraficoBarras {
             .attr("y", d => this.escalaY(d.valor))
             .attr("width", this.escalaX.bandwidth())
             .attr("height", d => this.configuracao.height - this.escalaY(d.valor))
-            .attr("fill", "#6c5ce7");  // Cor roxa para as barras
+            .attr("fill", "#000000")
     }
 }
 //---------------------------------------------------------
 class GraficoDispersao {
     constructor(configuracao) {
         this.configuracao = configuracao;
- 
         this.svg = null;
         this.margens = null;
- 
         this.escalaX = null;
         this.escalaY = null;
- 
         this.circulos = [];
- 
         this.criaSvg();
         this.criaMargens();
     }
@@ -116,13 +129,12 @@ class GraficoDispersao {
  
     async carregaArquivo(file) {
         this.circulos = await d3.csv(file, d => ({
-            cx: +d.User_Score,            
+            cx: +d.User_Score * 10,  //como o User_Score está em decimal e o Critic_Score está como inteiro, multiplicamos por 10 para facilitar a visualização        
             cy: +d.Critic_Score,         
             r: 4,                   // Raio fixo para os pontos no gráfico
-        }));
+        }));// Filtra os valores inválidos
 
-        this.circulos = this.circulos.slice(0,1000);
-
+        this.circulos = this.circulos.slice(0,1500);
     }
  
     criaEscalas() {
@@ -171,7 +183,7 @@ class GraficoDispersao {
             .attr("cx", d => this.escalaX(d.cx))
             .attr("cy", d => this.escalaY(d.cy))
             .attr("r", d => d.r)
-            .attr("fill", "#0984e3");  // Cor azul para os círculos
+            .attr("fill", "#00000");  // Cor azul para os círculos
     }
  }
 //---------------------------------------------------------
@@ -304,7 +316,7 @@ class MapaDeCalor {
 //------------------------------------------------------
 async function main() {
 
-    let barras = { div: "#barras", width: 1000, height: 500, top: 30, left: 150, bottom: 350, right: 30 };
+    let barras = { div: "#barras", width: 1000, height: 400, top: 40, left: 120, bottom: 200, right: 10};
     let eixoBarras = new GraficoBarras(barras);
     await eixoBarras.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
     
@@ -313,7 +325,7 @@ async function main() {
     eixoBarras.carregaBarras();
 
 //------------------------------------------------------
-    let dispersao = { div: "#dispersao", width: 1000, height: 500, top: 30, left: 150, bottom: 350, right: 30 };
+    let dispersao = { div: "#dispersao", width: 1000, height: 400, top: 40, left: 120, bottom: 200, right: 30 };
     let eixoDispersao = new GraficoDispersao(dispersao);
     await eixoDispersao.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 
@@ -322,7 +334,7 @@ async function main() {
     eixoDispersao.carregaCirculos();
 
 //------------------------------------------------------
-    let calor = { div: "#mapa-de-calor", width: 1000, height: 500, top: 30, left: 150, bottom: 150, right: 30 };
+    let calor = { div: "#mapa-de-calor", width: 1000, height: 400, top: 40, left: 120, bottom: 200, right: 30 };
     let eixoCalor = new MapaDeCalor(calor);
     await eixoCalor.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 

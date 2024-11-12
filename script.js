@@ -24,9 +24,12 @@ class GraficoBarras {
 
     async carregaArquivo(file) {
         this.barras = await d3.csv(file, d => ({
-            cat: d.Genre || "Others", //nomear os gêneros de jogos do eixo x
-            valor: +d.Global_Sales, //vendas globais no eixo y
+            cat: d.Genre || "Others", // nomear os gêneros de jogos do eixo x
+            valor: +d.Global_Sales,   // vendas globais no eixo y
         }));
+
+        // Ordena as categorias alfabeticamente
+        this.barras.sort((a, b) => d3.ascending(a.cat, b.cat));
     }
 
     criaEscalas() {
@@ -41,7 +44,7 @@ class GraficoBarras {
             .range([this.configuracao.height, 0]);
     
         // Escala de cor para as categorias
-        this.escalaCor = d3.scaleOrdinal(d3.schemeCategory10)  // ou escolha um esquema de cores
+        this.escalaCor = d3.scaleOrdinal(d3.schemeCategory10)
             .domain(this.barras.map(d => d.cat));
     }
 
@@ -58,7 +61,6 @@ class GraficoBarras {
             .attr("dy", "0.15em")
             .attr("transform", "rotate(-45)");
     
-            
         this.margens.selectAll(".linha-horizontal")
             .data(this.escalaY.ticks())
             .enter()
@@ -81,7 +83,7 @@ class GraficoBarras {
             .style("text-anchor", "middle")
             .text("Gênero");
     
-         // Título do eixo Y (Vendas Globais)
+        // Título do eixo Y (Vendas Globais)
         this.svg.append("text")
             .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
             .attr("y", this.configuracao.left / 2)
@@ -99,7 +101,7 @@ class GraficoBarras {
             .attr("y", d => this.escalaY(d.valor))
             .attr("width", this.escalaX.bandwidth())
             .attr("height", d => this.configuracao.height - this.escalaY(d.valor))
-            .attr("fill", d => this.escalaCor(d.cat))  // Aplica a cor baseada na categoria
+            .attr("fill", d => this.escalaCor(d.cat));  // Aplica a cor baseada na categoria
     }
 }
 //---------------------------------------------------------
@@ -204,7 +206,7 @@ class MapaDeCalor {
     criaSvg() {
         this.svg = d3.select(this.configuracao.div)
             .append("svg")
-            .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right)
+            .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right + 60)
             .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom);
     }
 
@@ -217,9 +219,9 @@ class MapaDeCalor {
     async carregaArquivo(file) {
         this.dados = await d3.csv(file, d => {
             return {
-                x: +d.NA_Sales, // Eixo X baseado nas vendas na América do Norte
-                y: +d.EU_Sales, // Eixo Y baseado nas vendas na Europa
-                valor: +d.JP_Sales // Intensidade da cor com base nas vendas no Japão
+                x: +d.NA_Sales, 
+                y: +d.EU_Sales, 
+                valor: +d.JP_Sales 
             };
         });
     }
@@ -234,10 +236,11 @@ class MapaDeCalor {
             .nice()
             .range([0, this.configuracao.width]);
 
+        // Invertendo a escala do eixo Y para que os valores mais baixos fiquem no topo
         this.escalaY = d3.scaleLinear()
             .domain(yExtent)
             .nice()
-            .range([this.configuracao.height, 0]);
+            .range([0, this.configuracao.height]);
 
         this.escalaCores = d3.scaleSequential(d3.interpolateInferno)
             .domain(valorExtent);
@@ -253,14 +256,12 @@ class MapaDeCalor {
 
         this.margens.append("g").call(eixoY);
 
-        // Título do eixo X (Vendas na América do Norte)
         this.svg.append("text")
             .attr("x", (this.configuracao.width / 2) + this.configuracao.left)
             .attr("y", (this.configuracao.height + this.configuracao.top + 40))
             .style("text-anchor", "middle")
             .text("Vendas na América do Norte (milhões)");
 
-        // Título do eixo Y (Vendas na Europa)
         this.svg.append("text")
             .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
             .attr("y", (this.configuracao.left / 3))
@@ -270,44 +271,39 @@ class MapaDeCalor {
     }
 
     criaGrade() {
-        const larguraBin = 10; // Largura fixa para cada bin
-        const alturaBin = 10;  // Altura fixa para cada bin
+        const larguraBin = 10;
+        const alturaBin = 10;
 
         const grid = {};
 
-        // Agrupando os dados manualmente
         this.dados.forEach(d => {
-            const xKey = Math.floor(this.escalaX(d.x) / larguraBin); // Chave para o eixo X
-            const yKey = Math.floor(this.escalaY(d.y) / alturaBin); // Chave para o eixo Y
-            
-            const key = `${xKey},${yKey}`; // Chave única para a célula
-            
+            const xKey = Math.floor(this.escalaX(d.x) / larguraBin);
+            const yKey = Math.floor(this.escalaY(d.y) / alturaBin);
+
+            const key = `${xKey},${yKey}`;
+
             if (!grid[key]) {
-                grid[key] = { x: xKey * larguraBin, y: yKey * alturaBin, valor: 0 }; // Inicializa a célula se não existir
+                grid[key] = { x: this.escalaX.invert(xKey * larguraBin), y: this.escalaY.invert(yKey * alturaBin), valor: 0 };
             }
-            
-            grid[key].valor += d.valor; // Acumula a intensidade
+
+            grid[key].valor += d.valor;
         });
 
-        return Object.values(grid); // Retorna os valores da grade
+        return Object.values(grid);
     }
 
     carregaMapaDeCalor() {
-        const dadosAgrupados = this.criaGrade(); // Chame a função que cria a grade
+        const dadosAgrupados = this.criaGrade();
 
-        const larguraBin = 10; // Largura dos retângulos
-        const alturaBin = 10;  // Altura dos retângulos
-
-        this.margens.selectAll(".retangulo")
+        this.margens.selectAll(".circulo")
             .data(dadosAgrupados)
-            .join("rect")
-            .attr("class", "retangulo")
-            .attr("x", d => d.x) // Posição X do retângulo
-            .attr("y", d => this.configuracao.height - (d.y + alturaBin)) // Posição Y do retângulo (inverter Y)
-            .attr("width", larguraBin) // Largura do retângulo
-            .attr("height", alturaBin) // Altura do retângulo
-            .attr("fill", d => this.escalaCores(d.valor)) // Cor baseada na intensidade
-            .attr("opacity", 0.8);  // Transparência ajustada
+            .join("circle")
+            .attr("class", "circulo")
+            .attr("cx", d => this.escalaX(d.x)) 
+            .attr("cy", d => this.escalaY(d.y)) 
+            .attr("r", 5) 
+            .attr("fill", d => this.escalaCores(d.valor)) 
+            .attr("opacity", 0.8); // Opacidade de 80% para melhor visualização
     }
 }
 //------------------------------------------------------

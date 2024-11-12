@@ -34,10 +34,15 @@ class GraficoBarras {
             .domain(this.barras.map(d => d.cat))
             .range([0, this.configuracao.width])
             .padding(0.1);
+    
         this.escalaY = d3.scaleLinear()
             .domain([0, d3.max(this.barras, d => d.valor)])
             .nice()
             .range([this.configuracao.height, 0]);
+    
+        // Escala de cor para as categorias
+        this.escalaCor = d3.scaleOrdinal(d3.schemeCategory10)  // ou escolha um esquema de cores
+            .domain(this.barras.map(d => d.cat));
     }
 
     criaEixos() {
@@ -83,10 +88,6 @@ class GraficoBarras {
             .attr("transform", "rotate(-90)")
             .style("text-anchor", "middle")
             .text("Vendas Globais (milhões)");
-    
-        // Define a espessura das linhas dos eixos
-        this.svg.selectAll(".domain, .tick line")  // Seleciona as linhas do eixo e as marcas
-            .style("stroke-width", "1.5px");  // Define a espessura da linha
     }
     
     carregaBarras() {
@@ -98,7 +99,7 @@ class GraficoBarras {
             .attr("y", d => this.escalaY(d.valor))
             .attr("width", this.escalaX.bandwidth())
             .attr("height", d => this.configuracao.height - this.escalaY(d.valor))
-            .attr("fill", "#000000")
+            .attr("fill", d => this.escalaCor(d.cat))  // Aplica a cor baseada na categoria
     }
 }
 //---------------------------------------------------------
@@ -129,10 +130,10 @@ class GraficoDispersao {
  
     async carregaArquivo(file) {
         this.circulos = await d3.csv(file, d => ({
-            cx: +d.User_Score * 10,  //como o User_Score está em decimal e o Critic_Score está como inteiro, multiplicamos por 10 para facilitar a visualização        
+            cx: +d.User_Score * 10,  // Multiplicando por 10 para visualizar melhor
             cy: +d.Critic_Score,         
-            r: 4,                   // Raio fixo para os pontos no gráfico
-        }));// Filtra os valores inválidos
+            r: 4,                     // Raio fixo para os pontos no gráfico
+        }));
 
         this.circulos = this.circulos.slice(0,1500);
     }
@@ -183,23 +184,19 @@ class GraficoDispersao {
             .attr("cx", d => this.escalaX(d.cx))
             .attr("cy", d => this.escalaY(d.cy))
             .attr("r", d => d.r)
-            .attr("fill", "#00000");  // Cor azul para os círculos
+            .attr("fill", "#DC143C");
     }
- }
+}
 //---------------------------------------------------------
 class MapaDeCalor {
     constructor(configuracao) {
         this.configuracao = configuracao;
-
         this.svg = null;
         this.margens = null;
-
         this.escalaX = null;
         this.escalaY = null;
         this.escalaCores = null;
-
         this.dados = [];
-
         this.criaSvg();
         this.criaMargens();
     }
@@ -316,7 +313,7 @@ class MapaDeCalor {
 //------------------------------------------------------
 async function main() {
 
-    let barras = { div: "#barras", width: 1000, height: 400, top: 40, left: 120, bottom: 200, right: 10};
+    let barras = { div: "#barras", width: 800, height: 400, top: 40, left: 120, bottom: 200, right: 10};
     let eixoBarras = new GraficoBarras(barras);
     await eixoBarras.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
     
@@ -325,7 +322,7 @@ async function main() {
     eixoBarras.carregaBarras();
 
 //------------------------------------------------------
-    let dispersao = { div: "#dispersao", width: 1000, height: 400, top: 40, left: 120, bottom: 200, right: 30 };
+    let dispersao = { div: "#dispersao", width: 1000, height: 450, top: 40, left: 120, bottom: 200, right: 30 };
     let eixoDispersao = new GraficoDispersao(dispersao);
     await eixoDispersao.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 
@@ -334,7 +331,7 @@ async function main() {
     eixoDispersao.carregaCirculos();
 
 //------------------------------------------------------
-    let calor = { div: "#mapa-de-calor", width: 1000, height: 400, top: 40, left: 120, bottom: 200, right: 30 };
+    let calor = { div: "#mapa-de-calor", width: 800, height: 500, top: 40, left: 120, bottom: 200, right: 30 };
     let eixoCalor = new MapaDeCalor(calor);
     await eixoCalor.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 

@@ -208,7 +208,8 @@ class MapaDeCalor {
         this.svg = d3.select(this.configuracao.div) 
             .append("svg") 
             .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right) 
-            .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom); }
+            .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom); 
+    }
 
     criaMargens() { 
         this.margens = this.svg.append("g") 
@@ -217,32 +218,36 @@ class MapaDeCalor {
 
     async carregaArquivo(file) { 
         this.dados = await d3.csv(file, d => ({ 
-            x: d.Empresa,
+            x: d.Empresa,  // Substitua por nomes das colunas no seu CSV
             y: d.Ano, 
-            valor: +d.Vendas }));
+            valor: +d.Vendas 
+        }));
     }
 
     criaEscalas() { 
-        // Extraímos os valores únicos para grupos e variáveis 
+        // Extraímos os valores únicos para os grupos e variáveis 
         const myGroups = Array.from(new Set(this.dados.map(d => d.x)));
         const myVars = Array.from(new Set(this.dados.map(d => d.y)));
- 
+
         // Escala X e Y para os grupos e variáveis 
         this.escalaX = d3.scaleBand() 
             .range([0, this.configuracao.width]) 
             .domain(myGroups) 
             .padding(0.05);
- 
+
         this.escalaY = d3.scaleBand() 
             .range([this.configuracao.height, 0]) 
             .domain(myVars) 
             .padding(0.05); 
 
-            const valorMaximo = d3.max(this.dados, d => d.valor);
-            const valorMinimo = d3.min(this.dados, d => d.valor);
-        
-            this.escalaCores = d3.scaleSequential(d3.interpolateInferno)
-                .domain([valorMinimo, valorMaximo]);
+        // Calcula valores mínimo e máximo
+        const valorMaximo = d3.max(this.dados, d => d.valor);
+        const valorMinimo = d3.min(this.dados, d => d.valor);
+
+        // Escala de cores: branco para #DC143C
+        this.escalaCores = d3.scaleSequential()
+            .domain([valorMinimo, valorMaximo])
+            .interpolator(d3.interpolateRgb("white", "#DC143C"));
     }
 
     criaEixos() {
@@ -252,7 +257,7 @@ class MapaDeCalor {
         const eixoY = d3.axisLeft(this.escalaY) 
             .tickSize(0);
 
-        //eixo x
+        // Eixo X
         this.margens.append("g") 
             .attr("transform", `translate(0, ${this.configuracao.height})`) 
             .call(eixoX)
@@ -263,19 +268,13 @@ class MapaDeCalor {
             .attr("dy", "3em")
             .select(".domain").remove(); 
 
+        // Eixo Y
         this.margens.append("g") 
             .style("font-size", 15) 
             .call(eixoY) 
             .select(".domain").remove();
 
-        //eixo y
-        this.margens
-            .append("g")
-            .style("font-size", 15)
-            .call(eixoY)
-            .select(".domain")
-            .remove();
-        
+        // Linha do eixo Y
         this.margens
             .append("line")
             .attr("x1", 0)
@@ -297,9 +296,10 @@ class MapaDeCalor {
         .attr("width", this.escalaX.bandwidth()) 
         .attr("height", this.escalaY.bandwidth()) 
         .style("fill", d => this.escalaCores(d.valor)) 
-        .style("opacity", 0.8) 
+        .style("opacity", 0.8); 
     } 
 }
+
 //------------------------------------------------------
 async function main() {
 

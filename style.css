@@ -21,13 +21,7 @@ div {
 #indicador-legenda {
     width: 250px; /* Largura da legenda */
     height: 30px; /* Altura da barra da legenda */
-    background: linear-gradient(to right, #000004, #fbb600);
+    background: linear-gradient(to right, #ffffff, #DC143C);
     position: relative;
-    color: white;
-}
-
-#indicador-legenda::after {
-    display: block;
-    text-align: center;
-    font-size: 12px;
+    border: black 2px solid;
 }

@@ -216,14 +216,22 @@ class MapaDeCalor {
             .attr("transform", `translate(${this.configuracao.left}, ${this.configuracao.top})`); 
     } 
 
-    async carregaArquivo(file) { 
-        this.dados = await d3.csv(file, d => ({ 
-            x: d.Empresa,  // Substitua por nomes das colunas no seu CSV
-            y: d.Ano, 
-            valor: +d.Vendas 
-        }));
+    async carregaArquivo(file) {
+        const dadosBrutos = await d3.csv(file);
+    
+        // Filtrar dados diretamente com as condições desejadas
+        this.dados = dadosBrutos
+            .filter(d => {
+                const ano = +d.Year_of_Release; // Converte o ano para número
+                return ano >= 2012 && ano <= 2017; // Filtro de anos
+            })
+            .map(d => ({
+                x: d.Platform,                // Plataforma no eixo X
+                y: +d.Year_of_Release,        // Ano no eixo Y
+                valor: +d.Global_Sales || 0   // Vendas globais como valor
+            }));
     }
-
+    
     criaEscalas() { 
         // Extraímos os valores únicos para os grupos e variáveis 
         const myGroups = Array.from(new Set(this.dados.map(d => d.x)));
@@ -323,7 +331,7 @@ async function main() {
 //------------------------------------------------------
     let calor = { div: "#mapa-de-calor", width: 700, height: 500, top: 40, left: 120, bottom: 200, right: 30 };
     let eixoCalor = new MapaDeCalor(calor);
-    await eixoCalor.carregaArquivo('../datasets/vendasdejogos.csv');
+    await eixoCalor.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
 
     eixoCalor.criaEscalas();
     eixoCalor.criaEixos();

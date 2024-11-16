@@ -190,121 +190,97 @@ class GraficoDispersao {
     }
 }
 //---------------------------------------------------------
-class MapaDeCalor {
+class MapaDeCalor { 
     constructor(configuracao) {
-        this.configuracao = configuracao;
-        this.svg = null;
-        this.margens = null;
-        this.escalaX = null;
+        this.configuracao = configuracao; 
+        this.svg = null; 
+        this.margens = null; 
+        this.dados = [];
+        this.escalaX = null; 
         this.escalaY = null;
         this.escalaCores = null;
-        this.dados = [];
+
         this.criaSvg();
         this.criaMargens();
     }
+ 
+    criaSvg() { 
+        this.svg = d3.select(this.configuracao.div) 
+            .append("svg") 
+            .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right) 
+            .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom); }
 
-    criaSvg() {
-        this.svg = d3.select(this.configuracao.div)
-            .append("svg")
-            .attr("width", this.configuracao.width + this.configuracao.left + this.configuracao.right + 60)
-            .attr("height", this.configuracao.height + this.configuracao.top + this.configuracao.bottom);
+    criaMargens() { 
+        this.margens = this.svg.append("g") 
+            .attr("transform", `translate(${this.configuracao.left}, ${this.configuracao.top})`); 
+    } 
+
+    async carregaArquivo(file) { 
+        this.dados = await d3.csv(file, d => ({ 
+            x: d.Empresa,
+            y: d.Ano, 
+            valor: +d.Vendas }));
     }
 
-    criaMargens() {
-        this.margens = this.svg
-            .append("g")
-            .attr("transform", `translate(${this.configuracao.left}, ${this.configuracao.top})`);
-    }
+    criaEscalas() { 
+        // Extraímos os valores únicos para grupos e variáveis 
+        const myGroups = Array.from(new Set(this.dados.map(d => d.x)));
+        const myVars = Array.from(new Set(this.dados.map(d => d.y)));
+ 
+        // Escala X e Y para os grupos e variáveis 
+        this.escalaX = d3.scaleBand() 
+            .range([0, this.configuracao.width]) 
+            .domain(myGroups) 
+            .padding(0.05);
+ 
+        this.escalaY = d3.scaleBand() 
+            .range([this.configuracao.height, 0]) 
+            .domain(myVars) 
+            .padding(0.05); 
 
-    async carregaArquivo(file) {
-        this.dados = await d3.csv(file, d => {
-            return {
-                x: +d.NA_Sales, 
-                y: +d.EU_Sales, 
-                valor: +d.JP_Sales 
-            };
-        });
-    }
-
-    criaEscalas() {
-        let xExtent = d3.extent(this.dados, d => d.x);
-        let yExtent = d3.extent(this.dados, d => d.y);
-        let valorExtent = d3.extent(this.dados, d => d.valor);
-
-        this.escalaX = d3.scaleLinear()
-            .domain(xExtent)
-            .nice()
-            .range([0, this.configuracao.width]);
-
-        // Invertendo a escala do eixo Y para que os valores mais baixos fiquem no topo
-        this.escalaY = d3.scaleLinear()
-            .domain(yExtent)
-            .nice()
-            .range([0, this.configuracao.height]);
-
-        this.escalaCores = d3.scaleSequential(d3.interpolateInferno)
-            .domain(valorExtent);
+            const valorMaximo = d3.max(this.dados, d => d.valor);
+            const valorMinimo = d3.min(this.dados, d => d.valor);
+        
+            this.escalaCores = d3.scaleSequential(d3.interpolateInferno)
+                .domain([valorMinimo, valorMaximo]);
     }
 
     criaEixos() {
-        let eixoX = d3.axisBottom(this.escalaX).ticks(10);
-        let eixoY = d3.axisLeft(this.escalaY).ticks(10);
+        const eixoX = d3.axisBottom(this.escalaX) 
+            .tickSize(0);
 
-        this.margens.append("g")
-            .attr("transform", `translate(0, ${this.configuracao.height})`)
-            .call(eixoX);
+        const eixoY = d3.axisLeft(this.escalaY) 
+            .tickSize(0);
 
-        this.margens.append("g").call(eixoY);
-
-        this.svg.append("text")
-            .attr("x", (this.configuracao.width / 2) + this.configuracao.left)
-            .attr("y", (this.configuracao.height + this.configuracao.top + 40))
+        this.margens.append("g") 
+            .attr("transform", `translate(0, ${this.configuracao.height})`) 
+            .call(eixoX)
+            .selectAll("text")
             .style("text-anchor", "middle")
-            .text("Vendas na América do Norte (milhões)");
+            .attr("transform", "rotate(-30)")
+            .attr("dx", "-2em")
+            .attr("dy", "3em")
+            .select(".domain").remove(); 
 
-        this.svg.append("text")
-            .attr("x", -(this.configuracao.height / 2) - this.configuracao.top)
-            .attr("y", (this.configuracao.left / 3))
-            .attr("transform", "rotate(-90)")
-            .style("text-anchor", "middle")
-            .text("Vendas na Europa (milhões)");
-    }
+        this.margens.append("g") 
+            .style("font-size", 15) 
+            .call(eixoY) 
+            .select(".domain").remove(); 
+    } 
 
-    criaGrade() {
-        const larguraBin = 10;
-        const alturaBin = 10;
-
-        const grid = {};
-
-        this.dados.forEach(d => {
-            const xKey = Math.floor(this.escalaX(d.x) / larguraBin);
-            const yKey = Math.floor(this.escalaY(d.y) / alturaBin);
-
-            const key = `${xKey},${yKey}`;
-
-            if (!grid[key]) {
-                grid[key] = { x: this.escalaX.invert(xKey * larguraBin), y: this.escalaY.invert(yKey * alturaBin), valor: 0 };
-            }
-
-            grid[key].valor += d.valor;
-        });
-
-        return Object.values(grid);
-    }
-
-    carregaMapaDeCalor() {
-        const dadosAgrupados = this.criaGrade();
-
-        this.margens.selectAll(".circulo")
-            .data(dadosAgrupados)
-            .join("circle")
-            .attr("class", "circulo")
-            .attr("cx", d => this.escalaX(d.x)) 
-            .attr("cy", d => this.escalaY(d.y)) 
-            .attr("r", 5) 
-            .attr("fill", d => this.escalaCores(d.valor)) 
-            .attr("opacity", 0.8); // Opacidade de 80% para melhor visualização
-    }
+    carregaMapaDeCalor() { 
+        this.margens.selectAll() 
+        .data(this.dados, d => `${d.x}:${d.y}`) 
+        .join("rect") 
+        .attr("x", d => this.escalaX(d.x)) 
+        .attr("y", d => this.escalaY(d.y)) 
+        .attr("rx", 4) 
+        .attr("ry", 4) 
+        .attr("width", this.escalaX.bandwidth()) 
+        .attr("height", this.escalaY.bandwidth()) 
+        .style("fill", d => this.escalaCores(d.valor)) 
+        .style("opacity", 0.8) 
+    } 
 }
 //------------------------------------------------------
 async function main() {
@@ -329,7 +305,7 @@ async function main() {
 //------------------------------------------------------
     let calor = { div: "#mapa-de-calor", width: 800, height: 500, top: 40, left: 120, bottom: 200, right: 30 };
     let eixoCalor = new MapaDeCalor(calor);
-    await eixoCalor.carregaArquivo('../datasets/Video_Games_Sales_as_at_22_Dec_2016.csv');
+    await eixoCalor.carregaArquivo('../datasets/vendasdejogos.csv');
 
     eixoCalor.criaEscalas();
     eixoCalor.criaEixos();

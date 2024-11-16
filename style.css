@@ -1,17 +1,33 @@
 body {
-    font-family:'Times New Roman', Times, serif;
+    font-family: arial;
 }
 
 h1 {
     text-align: center;
 }
 
-.calor {
-    display: flex;
-}
-
 div { 
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+}
+
+.calor {
+    display: flex;
+    flex-direction: row;
+}
+
+#indicador-legenda {
+    width: 300px; /* Largura da legenda */
+    height: 15px; /* Altura da barra da legenda */
+    background: linear-gradient(to right, #000004, #fbb600);
+    position: relative;
+    color: white;
+}
+
+#indicador-legenda::after {
+    display: block;
+    text-align: center;
+    font-size: 12px;
 }

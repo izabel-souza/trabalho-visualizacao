@@ -252,6 +252,7 @@ class MapaDeCalor {
         const eixoY = d3.axisLeft(this.escalaY) 
             .tickSize(0);
 
+        //eixo x
         this.margens.append("g") 
             .attr("transform", `translate(0, ${this.configuracao.height})`) 
             .call(eixoX)
@@ -265,7 +266,24 @@ class MapaDeCalor {
         this.margens.append("g") 
             .style("font-size", 15) 
             .call(eixoY) 
-            .select(".domain").remove(); 
+            .select(".domain").remove();
+
+        //eixo y
+        this.margens
+            .append("g")
+            .style("font-size", 15)
+            .call(eixoY)
+            .select(".domain")
+            .remove();
+        
+        this.margens
+            .append("line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 0)
+            .attr("y2", this.configuracao.height)
+            .attr("stroke", "black")
+            .attr("stroke-width", 1);
     } 
 
     carregaMapaDeCalor() { 
@@ -303,7 +321,7 @@ async function main() {
     eixoDispersao.carregaCirculos();
 
 //------------------------------------------------------
-    let calor = { div: "#mapa-de-calor", width: 800, height: 500, top: 40, left: 120, bottom: 200, right: 30 };
+    let calor = { div: "#mapa-de-calor", width: 700, height: 500, top: 40, left: 120, bottom: 200, right: 30 };
     let eixoCalor = new MapaDeCalor(calor);
     await eixoCalor.carregaArquivo('../datasets/vendasdejogos.csv');
 

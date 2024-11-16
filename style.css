@@ -19,8 +19,8 @@ div {
 }
 
 #indicador-legenda {
-    width: 300px; /* Largura da legenda */
-    height: 15px; /* Altura da barra da legenda */
+    width: 250px; /* Largura da legenda */
+    height: 30px; /* Altura da barra da legenda */
     background: linear-gradient(to right, #000004, #fbb600);
     position: relative;
     color: white;

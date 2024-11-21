@@ -1,111 +1,111 @@
 Empresa,Ano,Vendas
-Nintendo,2014,24
-Nintendo,2015,6
-Nintendo,2016,8
-Nintendo,2017,23
-Nintendo,2018,0
-Nintendo,2019,7
-Nintendo,2020,23
-Nintendo,2021,10
-Nintendo,2022,16
-Nintendo,2023,7
-Sony,2014,34
-Sony,2015,34
-Sony,2016,32
-Sony,2017,4
-Sony,2018,27
-Sony,2019,6
-Sony,2020,8
-Sony,2021,7
-Sony,2022,11
-Sony,2023,33
-Microsoft (Xbox),2014,32
-Microsoft (Xbox),2015,22
-Microsoft (Xbox),2016,23
-Microsoft (Xbox),2017,34
-Microsoft (Xbox),2018,21
-Microsoft (Xbox),2019,26
+Nintendo,2014,9
+Nintendo,2015,27
+Nintendo,2016,31
+Nintendo,2017,38
+Nintendo,2018,44
+Nintendo,2019,14
+Nintendo,2020,35
+Nintendo,2021,43
+Nintendo,2022,21
+Nintendo,2023,38
+Sony,2014,48
+Sony,2015,32
+Sony,2016,23
+Sony,2017,6
+Sony,2018,13
+Sony,2019,33
+Sony,2020,45
+Sony,2021,10
+Sony,2022,36
+Sony,2023,36
+Microsoft (Xbox),2014,18
+Microsoft (Xbox),2015,40
+Microsoft (Xbox),2016,9
+Microsoft (Xbox),2017,8
+Microsoft (Xbox),2018,33
+Microsoft (Xbox),2019,17
 Microsoft (Xbox),2020,34
-Microsoft (Xbox),2021,0
-Microsoft (Xbox),2022,34
-Microsoft (Xbox),2023,13
-Tencent,2014,2
-Tencent,2015,0
-Tencent,2016,4
-Tencent,2017,25
+Microsoft (Xbox),2021,22
+Microsoft (Xbox),2022,19
+Microsoft (Xbox),2023,5
+Tencent,2014,50
+Tencent,2015,16
+Tencent,2016,18
+Tencent,2017,41
 Tencent,2018,13
-Tencent,2019,26
-Tencent,2020,8
-Tencent,2021,14
-Tencent,2022,14
-Tencent,2023,25
-Activision Blizzard,2014,12
-Activision Blizzard,2015,31
-Activision Blizzard,2016,31
-Activision Blizzard,2017,3
-Activision Blizzard,2018,29
-Activision Blizzard,2019,22
-Activision Blizzard,2020,14
-Activision Blizzard,2021,28
-Activision Blizzard,2022,35
-Activision Blizzard,2023,12
-EA,2014,31
-EA,2015,6
-EA,2016,21
-EA,2017,27
-EA,2018,1
-EA,2019,5
-EA,2020,27
-EA,2021,27
-EA,2022,19
-EA,2023,29
-Take-Two Interactive,2014,10
-Take-Two Interactive,2015,27
-Take-Two Interactive,2016,24
-Take-Two Interactive,2017,32
-Take-Two Interactive,2018,0
-Take-Two Interactive,2019,26
-Take-Two Interactive,2020,12
-Take-Two Interactive,2021,2
-Take-Two Interactive,2022,5
-Take-Two Interactive,2023,7
-Ubisoft,2014,26
-Ubisoft,2015,8
-Ubisoft,2016,32
-Ubisoft,2017,23
-Ubisoft,2018,14
-Ubisoft,2019,31
-Ubisoft,2020,31
-Ubisoft,2021,23
-Ubisoft,2022,11
-Ubisoft,2023,1
-Valve,2014,2
-Valve,2015,16
-Valve,2016,1
-Valve,2017,1
+Tencent,2019,28
+Tencent,2020,40
+Tencent,2021,41
+Tencent,2022,11
+Tencent,2023,6
+Activision Blizzard,2014,35
+Activision Blizzard,2015,45
+Activision Blizzard,2016,33
+Activision Blizzard,2017,47
+Activision Blizzard,2018,22
+Activision Blizzard,2019,11
+Activision Blizzard,2020,23
+Activision Blizzard,2021,27
+Activision Blizzard,2022,49
+Activision Blizzard,2023,27
+EA,2014,40
+EA,2015,25
+EA,2016,38
+EA,2017,33
+EA,2018,33
+EA,2019,34
+EA,2020,38
+EA,2021,26
+EA,2022,44
+EA,2023,11
+Take-Two Interactive,2014,36
+Take-Two Interactive,2015,42
+Take-Two Interactive,2016,8
+Take-Two Interactive,2017,40
+Take-Two Interactive,2018,8
+Take-Two Interactive,2019,42
+Take-Two Interactive,2020,40
+Take-Two Interactive,2021,28
+Take-Two Interactive,2022,16
+Take-Two Interactive,2023,15
+Ubisoft,2014,16
+Ubisoft,2015,23
+Ubisoft,2016,7
+Ubisoft,2017,33
+Ubisoft,2018,12
+Ubisoft,2019,16
+Ubisoft,2020,24
+Ubisoft,2021,21
+Ubisoft,2022,24
+Ubisoft,2023,5
+Valve,2014,23
+Valve,2015,26
+Valve,2016,20
+Valve,2017,15
 Valve,2018,27
-Valve,2019,22
-Valve,2020,31
-Valve,2021,32
-Valve,2022,0
-Valve,2023,18
-Bandai Namco,2014,1
-Bandai Namco,2015,25
-Bandai Namco,2016,31
-Bandai Namco,2017,5
-Bandai Namco,2018,31
-Bandai Namco,2019,3
-Bandai Namco,2020,10
-Bandai Namco,2021,16
-Bandai Namco,2022,23
-Bandai Namco,2023,4
-Rockstar Games,2014,33
-Rockstar Games,2015,5
-Rockstar Games,2016,21
-Rockstar Games,2017,10
-Rockstar Games,2018,15
-Rockstar Games,2019,32
-Rockstar Games,2020,8
-Rockstar Games,2021,5
-Rockstar Games,2022,15
-Rockstar Games,2023,28
+Valve,2019,45
+Valve,2020,24
+Valve,2021,28
+Valve,2022,27
+Valve,2023,35
+Bandai Namco,2014,14
+Bandai Namco,2015,10
+Bandai Namco,2016,8
+Bandai Namco,2017,16
+Bandai Namco,2018,10
+Bandai Namco,2019,33
+Bandai Namco,2020,5
+Bandai Namco,2021,11
+Bandai Namco,2022,5
+Bandai Namco,2023,32
+Rockstar Games,2014,50
+Rockstar Games,2015,38
+Rockstar Games,2016,22
+Rockstar Games,2017,49
+Rockstar Games,2018,8
+Rockstar Games,2019,14
+Rockstar Games,2020,30
+Rockstar Games,2021,39
+Rockstar Games,2022,28
+Rockstar Games,2023,45
